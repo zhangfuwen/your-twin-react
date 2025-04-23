@@ -1,38 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, ActivityIndicator } from 'react-native';
-import { initializeDatabase, db } from '../../database/db';
-
-
-
-
+import { db, TimelineItem } from '../../database/db';
 
 const TimelineScreen: React.FC = () => {  
   const [timelineItems, setTimelineItems] = useState<TimelineItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadTimelineItems = async () => {
-        setLoading(true);
-        try {
-            await initializeDatabase(); // Ensure database is initialized
-
-            // db.transaction((tx) => {
-            //     tx.executeSql(
-            //         'SELECT * FROM timelineItems',
-            //         [],
-            //         (_, { rows }) => {
-            //             console.log("Fetched items:", rows._array);
-            //             setTimelineItems(rows._array);
-            //         },
-            //         (_, error) => {
-            //             console.error("Error fetching timeline items:", error);
-            //             // Consider setting an error state here to display to the user
-            //         }
-            //     );
-            // });
-
-
-
+    const loadTimelineItems = async () => {     setLoading(true);
+      try {        db.initialize();        const timelineData = await db.query('', []);        setTimelineItems(timelineData);
       } catch (error) {
         console.error("Failed to load timeline items:", error);
       } finally {

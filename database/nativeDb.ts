@@ -1,14 +1,7 @@
 import * as SQLite from 'expo-sqlite';
+import { TimelineItem } from './db';
 
-interface TimelineItem {
-  id?: number;
-  type: string;
-  data: string;
-  comment: string;
-  metaTime: string;
-  metaLocation: string;
-}
-
+  
 interface Database {
   insert(item: Omit<TimelineItem, 'id'>): Promise<number>;
   query(whereClause?: string, params?: any[]): Promise<TimelineItem[]>;
