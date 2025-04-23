@@ -98,15 +98,17 @@ const TimelineScreen: React.FC = () => {
     }
 
     return (
+      <View>
+        <View style={styles.knot} />
+        <Text style={styles.time}>{item.meta.time}</Text>
+
       <View key={index} style={styles.itemWrapper}>
         <View style={styles.itemContainer}>
-          <View style={styles.knot} />
           <View style={styles.content}>
             {content}
             {item.comment && <Text style={styles.comment}>{item.comment}</Text>}
             {item.meta && (
               <View style={styles.metaContainer}>
-                <Text style={styles.meta}>{item.meta.time}</Text>
                 {item.meta.location && <Text style={styles.meta}> - {item.meta.location}</Text>}
               </View>
             )}
@@ -114,6 +116,7 @@ const TimelineScreen: React.FC = () => {
         </View>
    
         
+      </View>
       </View>
     );
   };
@@ -150,18 +153,25 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     bottom: 0,
-    left: 40,
+    left: 39,
     width: 2,
-    backgroundColor: 'black',
+    backgroundColor: '#4a90e2', // Match knot color\n
     marginLeft: 5,
   },
   knot: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#4a90e2',
-    left: -20,
+    backgroundColor: 'lightblue',
+    left: 0,
+    top: 10,
     zIndex: 1,
+  },
+  time: {
+    color: "gray",
+    top: -2,
+    fontSize: 10,
+    left: 15,
   },
   content: {
     flex: 1,
