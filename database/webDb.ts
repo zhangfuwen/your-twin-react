@@ -5,31 +5,53 @@ export class WebDatabase implements Database {
   private nextId: number = 1;
 
   private insertFakeData(): void {
-    const now = Date.now();
-    const fakeData: Omit<TimelineItem, 'id'>[] = [
+    const now = new Date();
+    const fakeData: TimelineItem[] = [
       {
-        timestamp: now,
-        text: 'This is the first fake timeline item.',
+        type: 'video',
+        data: { url: 'https://www.example.com/video1.mp4' },
+        comment: 'Cool video!',
+        metaTime: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 2), // 2 days ago
+        metaLocation: 'Home',
       },
       {
-        type: 'event',
-        data: { title: 'Meeting with John', description: 'Discuss project updates' },
-        comment: 'Met with John to discuss project updates. Things are progressing well.',
-        metaTime: now - 3600000, // 1 hour ago
+        type: 'audio',
+        data: { url: 'https://www.example.com/audio1.mp3' },
+        comment: 'Nice song!',
+        metaTime: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 1), // 1 day ago
+        metaLocation: 'Car',
+      },
+      {
+        type: 'photo',
+        data: { url: 'https://www.example.com/photo1.jpg' },
+        comment: 'Beautiful landscape!',
+        metaTime: now, // now
+        metaLocation: 'Park',
+      },
+       {
+        type: 'text',
+        data: { content: 'This is a text post.' },
+        comment: 'My thoughts for today.',
+        metaTime: new Date(now.getTime() - 1000 * 60 * 30), // 30 minutes ago
         metaLocation: 'Office',
       },
       {
-        type: 'thought',
-        data: { content: 'Idea for a new feature' },
-        comment: 'Had an idea for a new feature while brainstorming. Need to explore this further.',
-        metaTime: now - 7200000, // 2 hours ago
-        metaLocation: 'Home',
+        type: 'slides',
+        data: {
+          urls: [
+            'https://www.example.com/slide1.jpg',
+            'https://www.example.com/slide2.jpg',
+            'https://www.example.com/slide3.jpg',
+          ],
+        },
+        comment: 'Presentation slides.',
+        metaTime: new Date(now.getTime() - 1000 * 60 * 60 * 2), // 2 hours ago
+        metaLocation: 'Conference Room',
       },
     ];
 
     fakeData.forEach(item => {
-      const { type, data, comment, metaTime, metaLocation } = item;
-      this.insert({ type, data, comment, metaTime, metaLocation });
+      this.insert(item);
     });
   }
 
@@ -40,15 +62,11 @@ export class WebDatabase implements Database {
     this.insertFakeData();
   }
 
-  async insert(item: Omit<TimelineItem, 'id'>): Promise<number> {
+  async insert(item: TimelineItem): Promise<number> {
     const id = this.nextId++;
     this.data[id] = {
       id,
-      type: item.type,
-      data: item.data,
-      comment: item.comment,
-      metaTime: item.metaTime,
-      metaLocation: item.metaLocation,
+      ...item
     };
     return id;
   }

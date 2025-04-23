@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Image, ActivityIndicator } from 're
 import { db, TimelineItem } from '../../database/db';
 
 const TimelineScreen: React.FC = () => {  
-  const [timelineItems, setTimelineItems] = useState<TimelineItem[]>([]);
+  const [timelineItems, setTimelineItems] = useState<TimelineItem[]>([]);  
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -20,56 +20,81 @@ const TimelineScreen: React.FC = () => {
   }, []);
 
   const renderTimelineItem = (item: TimelineItem, index: number) => {
-    let content;
-    const itemData = typeof item.data === 'string' ? JSON.parse(item.data) : item.data;
-
-    switch (item.type) {
-        case 'photo':
-            content = <Image source={{ uri: itemData }} style={styles.image} resizeMode="contain" />;
-            break;
-        case 'text':
-            content = <Text style={styles.text}>{itemData}</Text>;
-            break;
-        case 'audio':
-            content = (
+      let content;
+      const itemData = item.data;
+      const formattedDate = item.metaTime.toLocaleDateString();
+    
+      switch (item.type) {
+          case 'photo':
+              content = (
                 <View>
-                    {/* Assuming itemData contains necessary audio information */}
-                    <Text style={styles.text}>Audio: {itemData.name}</Text> 
-                    {item.comment && <Text style={styles.transcription}>Comment: {item.comment}</Text>}
+                  <Image source={{ uri: itemData.url }} style={styles.image} resizeMode="contain" />
                 </View>
-            );
-            break;
-        case 'video':
-            content = (
+              );
+              break;
+          case 'text':
+              content = <Text style={styles.text}>{itemData.content}</Text>;
+              break;
+          case 'audio':
+              content = (
                 <View>
-                    {/* Assuming itemData contains necessary video information */}
-                    <Text style={styles.text}>Video: {itemData.name}</Text>
-                    {item.comment && <Text style={styles.transcription}>Comment: {item.comment}</Text>}
+                  <Image source={{ uri: itemData.url }} style={styles.image} resizeMode="contain" />
                 </View>
-            );
-            break;
-        case 'slides':
-            content = <View>{itemData.map((slide, slideIndex) => (<Text key={slideIndex} style={styles.text}>{slide}</Text>))}</View>;
-            break;
-        default:
-            content = <Text>Unsupported item type</Text>;
-    }
+              );
+              break;
+          case 'video':
+              content = (
+                <View>
+                  <Image source={{ uri: itemData.url }} style={styles.image} resizeMode="contain" />
+                </View>
+              );
+              break;
+          case 'slides':
+              content = (
+                <View>
+                  {itemData.urls.map((url, urlIndex) => (
+                    <Image key={urlIndex} source={{ uri: url }} style={styles.image} resizeMode="contain" />
+                  ))}
+                </View>
+              );
+              break;
+          default:
+              content = <Text>Unsupported item type</Text>;
+      }
+    
+      return (
+        <View key={index} style={styles.itemContainer}>
+          <View style={styles.timeKnotContainer}>
+            <Text style={styles.time}>{formattedDate}</Text>
+            <View style={styles.knot} />
+          </View>
+          <View style={styles.contentContainer}>
+            <View style={styles.content}>
+              {content}
+              {item.comment && <Text style={styles.comment}>{item.comment}</Text>}
+              {item.metaLocation && (
+                <View style={styles.metaContainer}>
+                  <Text style={styles.meta}>- {item.metaLocation}</Text>
+                </View>
+              )}
+            </View>
+          </View>
+        </View>
+      );
+    };
 
-    return (<View key={index} style={styles.itemContainer}><View style={styles.timeKnotContainer}><Text style={styles.time}>{item.metaTime}</Text><View style={styles.knot} /></View><View style={styles.contentContainer}><View style={styles.content}>{content}{item.comment ? <Text style={styles.comment}>{item.comment}</Text> : null}{item.metaLocation ? (<View style={styles.metaContainer}><Text style={styles.meta}>- {item.metaLocation}</Text></View>) : null}</View></View></View>);
+    return (
+      <View style={styles.container}>
+        {loading ? (
+          <ActivityIndicator size="large" color="#0000ff" />
+        ) : (
+          <ScrollView contentContainerStyle={styles.timelineContent}>
+            {timelineItems.map(renderTimelineItem)}
+          </ScrollView>
+        )}
+      </View>
+    );
   };
-
-  return (
-    <View style={styles.container}>
-      {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
-      ) : (
-        <ScrollView contentContainerStyle={styles.timelineContent}>
-          {timelineItems.map(renderTimelineItem)}
-        </ScrollView>
-      )}
-    </View>
-  );
-};
 
 const styles = StyleSheet.create({
   container: {
