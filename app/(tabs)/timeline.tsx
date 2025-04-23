@@ -1,212 +1,174 @@
-import { BottomTabBar } from '@react-navigation/bottom-tabs';
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, Image, ActivityIndicator } from 'react-native';
+import { initializeDatabase, db } from '../../database/db';
 
-interface TimelineItem {
-  type: 'photo' | 'text' | 'audio' | 'video' | 'slides';
-  data: any;
-  comment?: string;
-  meta?: {
-    time: string;
-    location?: string;
-  };
-}
 
-const TimelineScreen: React.FC = () => {
-  const timelineItems: TimelineItem[] = [
-    {
-      type: 'photo',
-      data: require('../../assets/images/react-logo.png'),
-      comment: 'React logo at the beginning of the timeline.',
-      meta: { time: '2023-10-27 18:30', location: 'Beach' },
-    },
-    {
-      type: 'text',
-      data: 'Just finished reading an amazing book! Highly recommend it to everyone.',
-      meta: { time: '2023-10-27 15:00' },
-    },
-    {
-      type: 'audio',
-      data: {
-        url: 'audio-url',
-        transcription: 'This is a transcription of the audio content.',
-      },
-      comment: 'Recorded a new song idea!',
-      meta: { time: '2023-10-27 12:00' },
-    },
-    {
-      type: 'video',
-      data: {
-        url: 'video-url',
-        transcription: 'Video about our amazing trip to the mountains.',
-      },
-      comment: 'Highlight of the trip!',
-      meta: { time: '2023-10-27 09:00', location: 'Mountain' },
-    },
-    {
-      type: 'slides',
-      data: ['Slide 1', 'Slide 2', 'Slide 3'],
-      meta: { time: '2023-10-26 20:00' },
-    },
-  ];
+
+
+
+const TimelineScreen: React.FC = () => {  
+  const [timelineItems, setTimelineItems] = useState<TimelineItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadTimelineItems = async () => {
+        setLoading(true);
+        try {
+            await initializeDatabase(); // Ensure database is initialized
+
+            // db.transaction((tx) => {
+            //     tx.executeSql(
+            //         'SELECT * FROM timelineItems',
+            //         [],
+            //         (_, { rows }) => {
+            //             console.log("Fetched items:", rows._array);
+            //             setTimelineItems(rows._array);
+            //         },
+            //         (_, error) => {
+            //             console.error("Error fetching timeline items:", error);
+            //             // Consider setting an error state here to display to the user
+            //         }
+            //     );
+            // });
+
+
+
+      } catch (error) {
+        console.error("Failed to load timeline items:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadTimelineItems();
+  }, []);
 
   const renderTimelineItem = (item: TimelineItem, index: number) => {
     let content;
+    const itemData = typeof item.data === 'string' ? JSON.parse(item.data) : item.data;
 
     switch (item.type) {
-      case 'photo':
-        content = (
-          <View style={styles.contentContainer}>
-            <Image source={item.data} style={styles.image} resizeMode="contain" />
-          </View>
-        );
-        break;
-      case 'text':
-        content = (
-          <View style={styles.contentContainer}>
-            <Text style={styles.text}>{item.data}</Text>
-          </View>
-        );
-        break;
-      case 'audio':
-        content = (
-          <View style={styles.contentContainer}>
-            <Text style={styles.text}>Audio: {item.data.url}</Text>
-            <Text style={styles.transcription}>Transcription: {item.data.transcription}</Text>
-          </View>
-        );
-        break;
-      case 'video':
-        content = (
-          <View style={styles.contentContainer}>
-            <Text style={styles.text}>Video: {item.data.url}</Text>
-            <Text style={styles.transcription}>Transcription: {item.data.transcription}</Text>
-          </View>
-        );
-        break;
-      case 'slides':
-        content = (
-          <View style={styles.contentContainer}>
-            {item.data.map((slide, slideIndex) => (
-              <Text key={slideIndex} style={styles.text}>{slide}</Text>
-            ))}
-          </View>
-        );
-        break;
-      default:
-        content = <Text>Unsupported item type</Text>;
+        case 'photo':
+            content = <Image source={{ uri: itemData }} style={styles.image} resizeMode="contain" />;
+            break;
+        case 'text':
+            content = <Text style={styles.text}>{itemData}</Text>;
+            break;
+        case 'audio':
+            content = (
+                <View>
+                    {/* Assuming itemData contains necessary audio information */}
+                    <Text style={styles.text}>Audio: {itemData.name}</Text> 
+                    {item.comment && <Text style={styles.transcription}>Comment: {item.comment}</Text>}
+                </View>
+            );
+            break;
+        case 'video':
+            content = (
+                <View>
+                    {/* Assuming itemData contains necessary video information */}
+                    <Text style={styles.text}>Video: {itemData.name}</Text>
+                    {item.comment && <Text style={styles.transcription}>Comment: {item.comment}</Text>}
+                </View>
+            );
+            break;
+        case 'slides':
+            content = <View>{itemData.map((slide, slideIndex) => (<Text key={slideIndex} style={styles.text}>{slide}</Text>))}</View>;
+            break;
+        default:
+            content = <Text>Unsupported item type</Text>;
     }
 
-    return (
-      <View>
-        <View style={styles.knot} />
-        <Text style={styles.time}>{item.meta.time}</Text>
-
-      <View key={index} style={styles.itemWrapper}>
-        <View style={styles.itemContainer}>
-          <View style={styles.content}>
-            {content}
-            {item.comment && <Text style={styles.comment}>{item.comment}</Text>}
-            {item.meta && (
-              <View style={styles.metaContainer}>
-                {item.meta.location && <Text style={styles.meta}> - {item.meta.location}</Text>}
-              </View>
-            )}
-          </View>
-        </View>
-   
-        
-      </View>
-      </View>
-    );
+    return (<View key={index} style={styles.itemContainer}><View style={styles.timeKnotContainer}><Text style={styles.time}>{item.metaTime}</Text><View style={styles.knot} /></View><View style={styles.contentContainer}><View style={styles.content}>{content}{item.comment ? <Text style={styles.comment}>{item.comment}</Text> : null}{item.metaLocation ? (<View style={styles.metaContainer}><Text style={styles.meta}>- {item.metaLocation}</Text></View>) : null}</View></View></View>);
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.timelineContainer}>
-        <View style={styles.line} />
-        {timelineItems.map(renderTimelineItem)}
-    </ScrollView>
+    <View style={styles.container}>
+      {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        <ScrollView contentContainerStyle={styles.timelineContent}>
+          {timelineItems.map(renderTimelineItem)}
+        </ScrollView>
+      )}
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  timelineContainer: {
-    paddingLeft: 40,
-    paddingRight: 20,
+  container: {
+    flex: 1,
+    backgroundColor: '#f0f0f0',
   },
-
-  itemWrapper: {
-    marginBottom: 30,
-    marginLeft: 20,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
+  timelineContent: {
+    paddingTop: 20,
+    paddingBottom: 20,
+    alignItems: 'flex-start',
   },
   itemContainer: {
-    position: 'relative',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    paddingBottom: 20,
+    marginLeft: 20,
   },
-  line: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 39,
-    width: 2,
-    backgroundColor: '#4a90e2', // Match knot color\n
-    marginLeft: 5,
+  timeKnotContainer: {
+    width: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
+    top: 15,
+  },
+  time: {
+    fontSize: 12,
+    color: '#666',
+    textAlign: 'right',
+    marginRight: 10,
   },
   knot: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: 'lightblue',
-    left: 0,
-    top: 10,
-    zIndex: 1,
+    backgroundColor: '#4a90e2',
   },
-  time: {
-    color: "gray",
-    top: -2,
-    fontSize: 10,
-    left: 15,
+  contentContainer: {
+    flex: 1,
+    paddingLeft: 20,
   },
   content: {
-    flex: 1,
-    alignSelf: 'flex-start',
-    padding: 10,
+    backgroundColor: 'white',
+    padding: 15,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  text: {
+    fontSize: 16,
+    color: '#333',
+  },
+  comment: {
+    fontSize: 14,
+    color: '#555',
+    marginTop: 10,
+  },
+  metaContainer: {
+    marginTop: 10,
+    alignItems: 'flex-start',
+  },
+  meta: {
+    fontSize: 12,
+    color: '#888',
   },
   image: {
     width: 200,
     height: 200,
     borderRadius: 5,
   },
-  text: {
-    fontSize: 15,
-    color: '#333',
-  },
   transcription: {
     fontSize: 14,
     color: '#666',
     marginTop: 8,
     fontStyle: 'italic',
-  },
-  comment: {
-    fontSize: 14,
-    fontStyle: 'italic',
-    color: '#555',
-    textAlign: 'left',
-  },
-  metaContainer: {
-    flexDirection: 'row', // Keep items (time, location) inline
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-  },
-  meta: {
-    fontSize: 13,
-    color: '#888', // Adjust color as needed
   },
 });
 
