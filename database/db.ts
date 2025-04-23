@@ -1,10 +1,31 @@
 import { Platform } from 'react-native';
 
+export interface VideoData {
+  url: string;
+}
+
+export interface AudioData {
+  url: string;
+}
+
+export interface PhotoData {
+  url: string;
+}
+
+export interface TextData {
+  content: string;
+}
+
+export interface SlidesData {
+  urls: string[];
+}
+
+export type TimelineItemData = VideoData | AudioData | PhotoData | TextData | SlidesData;
 
 export interface TimelineItem {
   id?: number;
-  type: string;
-  data: any;
+  type: 'video' | 'audio' | 'photo' | 'text' | 'slides';
+  data: TimelineItemData;
   comment?: string;
   metaTime?: Date;
   metaLocation?: string;

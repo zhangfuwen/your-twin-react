@@ -1,51 +1,51 @@
-import { Database, TimelineItem } from './db';
+import { Database, TimelineItem, VideoData, AudioData, PhotoData, TextData, SlidesData } from './db';
 
 export class WebDatabase implements Database {
   private data: { [id: number]: TimelineItem } = {};
   private nextId: number = 1;
 
   private insertFakeData(): void {
-    const now = new Date();
+    const now = new Date().toLocaleDateString();
     const fakeData: TimelineItem[] = [
-      {
+      {        
         type: 'video',
-        data: { url: 'https://www.example.com/video1.mp4' },
+        data: { url: 'https://www.example.com/video1.mp4' } as VideoData,
         comment: 'Cool video!',
-        metaTime: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 2), // 2 days ago
+        metaTime: new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 2).toLocaleDateString(), // 2 days ago
         metaLocation: 'Home',
       },
       {
         type: 'audio',
-        data: { url: 'https://www.example.com/audio1.mp3' },
+        data: { url: 'https://www.example.com/audio1.mp3' } as AudioData,
         comment: 'Nice song!',
-        metaTime: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 1), // 1 day ago
+        metaTime: new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 1).toLocaleDateString(), // 1 day ago
         metaLocation: 'Car',
       },
       {
         type: 'photo',
-        data: { url: 'https://www.example.com/photo1.jpg' },
+        data: { url: 'https://www.example.com/photo1.jpg' } as PhotoData,
         comment: 'Beautiful landscape!',
-        metaTime: now, // now
+        metaTime: now,
         metaLocation: 'Park',
       },
        {
         type: 'text',
-        data: { content: 'This is a text post.' },
-        comment: 'My thoughts for today.',
-        metaTime: new Date(now.getTime() - 1000 * 60 * 30), // 30 minutes ago
+        data: { content: 'This is a text post.' } as TextData,
+        comment: 'My thoughts for today.',        
+        metaTime: new Date(new Date().getTime() - 1000 * 60 * 30).toLocaleDateString(), // 30 minutes ago
         metaLocation: 'Office',
       },
       {
         type: 'slides',
-        data: {
+        data: {          
           urls: [
             'https://www.example.com/slide1.jpg',
             'https://www.example.com/slide2.jpg',
             'https://www.example.com/slide3.jpg',
           ],
-        },
+        } as SlidesData,
         comment: 'Presentation slides.',
-        metaTime: new Date(now.getTime() - 1000 * 60 * 60 * 2), // 2 hours ago
+        metaTime: new Date(new Date().getTime() - 1000 * 60 * 60 * 2).toLocaleDateString(), // 2 hours ago
         metaLocation: 'Conference Room',
       },
     ];
@@ -61,7 +61,7 @@ export class WebDatabase implements Database {
     console.log('WebDatabase initialized.');
     this.insertFakeData();
   }
-
+  
   async insert(item: TimelineItem): Promise<number> {
     const id = this.nextId++;
     this.data[id] = {

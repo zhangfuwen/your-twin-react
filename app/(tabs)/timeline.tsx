@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { db, TimelineItem } from '../../database/db';
+import AudioItem from '../../components/timeline/AudioItem';
+import PhotoItem from '../../components/timeline/PhotoItem';
+import SlidesItem from '../../components/timeline/SlidesItem';
+import TextItem from '../../components/timeline/TextItem';
+import VideoItem from '../../components/timeline/VideoItem';
 
 const TimelineScreen: React.FC = () => {  
   const [timelineItems, setTimelineItems] = useState<TimelineItem[]>([]);  
   const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     const loadTimelineItems = async () => {     setLoading(true);
@@ -20,67 +26,30 @@ const TimelineScreen: React.FC = () => {
   }, []);
 
   const renderTimelineItem = (item: TimelineItem, index: number) => {
-      let content;
-      const itemData = item.data;
-      const formattedDate = item.metaTime.toLocaleDateString();
-    
-      switch (item.type) {
-          case 'photo':
-              content = (
-                <View>
-                  <Image source={{ uri: itemData.url }} style={styles.image} resizeMode="contain" />
-                </View>
-              );
-              break;
-          case 'text':
-              content = <Text style={styles.text}>{itemData.content}</Text>;
-              break;
-          case 'audio':
-              content = (
-                <View>
-                  <Image source={{ uri: itemData.url }} style={styles.image} resizeMode="contain" />
-                </View>
-              );
-              break;
-          case 'video':
-              content = (
-                <View>
-                  <Image source={{ uri: itemData.url }} style={styles.image} resizeMode="contain" />
-                </View>
-              );
-              break;
-          case 'slides':
-              content = (
-                <View>
-                  {itemData.urls.map((url, urlIndex) => (
-                    <Image key={urlIndex} source={{ uri: url }} style={styles.image} resizeMode="contain" />
-                  ))}
-                </View>
-              );
-              break;
-          default:
-              content = <Text>Unsupported item type</Text>;
-      }
-    
-      return (
+    return (
         <View key={index} style={styles.itemContainer}>
+          <Text style={styles.time}>{item.metaTime}</Text>
           <View style={styles.timeKnotContainer}>
-            <Text style={styles.time}>{formattedDate}</Text>
             <View style={styles.knot} />
           </View>
           <View style={styles.contentContainer}>
             <View style={styles.content}>
-              {content}
-              {item.comment && <Text style={styles.comment}>{item.comment}</Text>}
-              {item.metaLocation && (
-                <View style={styles.metaContainer}>
-                  <Text style={styles.meta}>- {item.metaLocation}</Text>
+              {item.type === 'video' && <VideoItem data={item.data} />}
+              {item.type === 'audio' && <AudioItem data={item.data} />}
+              {item.type === 'photo' && <PhotoItem data={item.data} />}
+              {item.type === 'text' && <TextItem data={item.data} />}
+              {item.type === 'slides' && <SlidesItem data={item.data} />}
+              <View style={styles.metaContainer}>
+                  {item.metaLocation && <Text style={styles.meta}>- {item.metaLocation}</Text>}
                 </View>
-              )}
+              {item.comment && <Text style={styles.comment}>{item.comment}</Text>}
             </View>
+                <View style={styles.metaContainer}>
+                  {item.metaLocation && <Text style={styles.meta}>- {item.metaLocation}</Text>}
+                </View>
           </View>
         </View>
-      );
+    );
     };
 
     return (
@@ -159,11 +128,6 @@ const styles = StyleSheet.create({
   meta: {
     fontSize: 12,
     color: '#888',
-  },
-  image: {
-    width: 200,
-    height: 200,
-    borderRadius: 5,
   },
   transcription: {
     fontSize: 14,
