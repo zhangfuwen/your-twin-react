@@ -1,3 +1,4 @@
+import { BottomTabBar } from '@react-navigation/bottom-tabs';
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
 
@@ -100,15 +101,19 @@ const TimelineScreen: React.FC = () => {
       <View key={index} style={styles.itemWrapper}>
         <View style={styles.itemContainer}>
           <View style={styles.knot} />
-        </View>
-          <View style={styles.content}>{content}</View>
-        {item.comment && <Text style={styles.comment}>{item.comment}</Text>}
-        {item.meta && (
-          <View style={styles.metaContainer}>
-            <Text style={styles.meta}>{item.meta.time}</Text>
-            {item.meta.location && <Text style={styles.meta}> - {item.meta.location}</Text>}
+          <View style={styles.content}>
+            {content}
+            {item.comment && <Text style={styles.comment}>{item.comment}</Text>}
+            {item.meta && (
+              <View style={styles.metaContainer}>
+                <Text style={styles.meta}>{item.meta.time}</Text>
+                {item.meta.location && <Text style={styles.meta}> - {item.meta.location}</Text>}
+              </View>
+            )}
           </View>
-        )}
+        </View>
+   
+        
       </View>
     );
   };
@@ -126,36 +131,42 @@ const styles = StyleSheet.create({
     paddingLeft: 40,
     paddingRight: 20,
   },
+
   itemWrapper: {
     marginBottom: 30,
     marginLeft: 20,
-    backgroundColor: '#fff',
-    borderRadius: 5,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
   },
   itemContainer: {
     position: 'relative',
-    left: -12,
   },
   line: {
     position: 'absolute',
     top: 0,
     bottom: 0,
-    left: 52,
+    left: 40,
     width: 2,
     backgroundColor: 'black',
+    marginLeft: 5,
   },
   knot: {
     width: 10,
     height: 10,
     borderRadius: 5,
     backgroundColor: '#4a90e2',
+    left: -20,
+    zIndex: 1,
   },
   content: {
-    backgroundColor: '#f0f0f0',
+    flex: 1,
+    alignSelf: 'flex-start',
     padding: 10,
-    borderRadius: 5,
-    marginBottom: 5,
-    marginTop: 10
   },
   image: {
     width: 200,
@@ -176,17 +187,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontStyle: 'italic',
     color: '#555',
-    marginTop: 5,
-    marginBottom: 8,
+    textAlign: 'left',
   },
   metaContainer: {
-    flexDirection: 'row',
-    marginTop: 5,
+    flexDirection: 'row', // Keep items (time, location) inline
+    alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   meta: {
     fontSize: 13,
-    color: '#888',
-    marginRight: 5,
+    color: '#888', // Adjust color as needed
   },
 });
 
