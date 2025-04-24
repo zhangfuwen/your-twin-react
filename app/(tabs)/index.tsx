@@ -1,4 +1,6 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+
+import { Image, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { IconSymbol } from '@/components/ui/IconSymbol';
 
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -51,6 +53,9 @@ export default function HomeScreen() {
         </ThemedText>
       </ThemedView>
     </ParallaxScrollView>
+
+
+
   );
 }
 
@@ -70,5 +75,22 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     position: 'absolute',
+  },
+});
+
+const addButtonSize = 56;
+
+const addButtonStyles = StyleSheet.create({
+  addButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    width: addButtonSize,
+    height: addButtonSize,
+    borderRadius: addButtonSize / 2,
+    backgroundColor: '#4a90e2',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
   },
 });
