@@ -7,7 +7,11 @@ interface TextItemProps {
 }
 
 const TextItem: React.FC<TextItemProps> = ({ data }) => {
-  return <Text>{data.content}</Text>;
+  return (
+    <Text>
+      {data.content ? data.content : 'Text not available'}
+    </Text>
+  );
 };
 
 export default TextItem;

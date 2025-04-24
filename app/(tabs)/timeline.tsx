@@ -28,9 +28,10 @@ const TimelineScreen: React.FC = () => {
   const renderTimelineItem = (item: TimelineItem, index: number) => {
     return (
         <View key={index} style={styles.itemContainer}>
-          <Text style={styles.time}>{item.metaTime}</Text>
           <View style={styles.timeKnotContainer}>
             <View style={styles.knot} />
+            <Text style={styles.time}>{item.metaTime}</Text>
+           
           </View>
           <View style={styles.contentContainer}>
             <View style={styles.content}>
@@ -41,7 +42,7 @@ const TimelineScreen: React.FC = () => {
               {item.type === 'slides' && <SlidesItem data={item.data} />}
               <View style={styles.metaContainer}>
                   {item.metaLocation && <Text style={styles.meta}>- {item.metaLocation}</Text>}
-                </View>
+              </View>
               {item.comment && <Text style={styles.comment}>{item.comment}</Text>}
             </View>
                 <View style={styles.metaContainer}>
@@ -53,55 +54,90 @@ const TimelineScreen: React.FC = () => {
     };
 
     return (
-      <View style={styles.container}>
-        {loading ? (
-          <ActivityIndicator size="large" color="#0000ff" />
-        ) : (
-          <ScrollView contentContainerStyle={styles.timelineContent}>
-            {timelineItems.map(renderTimelineItem)}
-          </ScrollView>
-        )}
+      <View style={styles.rootContainer}>
+        <View style={styles.line} />
+        <View style={styles.container}>
+          {loading ? (
+            <ActivityIndicator size="large" color="#0000ff" />
+          ) : (
+              <ScrollView contentContainerStyle={styles.timelineContent}>
+                {timelineItems.map(renderTimelineItem)}
+              </ScrollView>
+          )}
+        </View>
       </View>
     );
   };
 
 const styles = StyleSheet.create({
+  rootContainer: {
+    flexDirection:'row',
+    //width: 400,
+    flex:1,
+    justifyContent:'flex-start',
+
+  },
+  line: {
+    //position: 'absolute',
+    top:0,
+    bottom:0,
+    left: 20,
+    width: 3,
+    backgroundColor: '#4a90e2', // Match knot color\n
+    marginLeft: 25,
+    zIndex:10,
+    //justifyContent:'flex-start',
+  },
   container: {
-    flex: 1,
     backgroundColor: '#f0f0f0',
+    width:"100%",
+    //justifyContent: 'flex-',
   },
   timelineContent: {
     paddingTop: 20,
     paddingBottom: 20,
     alignItems: 'flex-start',
+    flexDirection:'column',
+    width: "100%",
   },
+
   itemContainer: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'flex-start',
     paddingBottom: 20,
-    marginLeft: 20,
+    //marginLeft: 20,
+    //flex: 1,
+    width: "100%",
+    //backgroundColor:'gray',
   },
   timeKnotContainer: {
-    width: 80,
+    //width: 80,
+    flexDirection:"row",
     alignItems: 'center',
-    justifyContent: 'center',
-    top: 15,
-  },
-  time: {
-    fontSize: 12,
-    color: '#666',
-    textAlign: 'right',
-    marginRight: 10,
+    justifyContent: 'flex-start',
+    //top: 15,
+    paddingBottom: 10,
+    left: 20,
+    width:"100%",
   },
   knot: {
     width: 10,
     height: 10,
+    left: -7,
     borderRadius: 5,
     backgroundColor: '#4a90e2',
   },
+  time: {
+    fontSize: 10,
+    color: '#888',
+    textAlign: 'right',
+    marginRight: 10,
+  },
+
   contentContainer: {
-    flex: 1,
-    paddingLeft: 20,
+    //flex: 1,
+    paddingLeft: 30,
+    width:'90%'
   },
   content: {
     backgroundColor: 'white',
