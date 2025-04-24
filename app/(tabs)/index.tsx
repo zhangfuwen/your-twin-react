@@ -1,5 +1,6 @@
 
-import { Image, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Image, Platform, StyleSheet, View } from 'react-native';
+import { Link, useRouter } from 'expo-router';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 
 import { HelloWave } from '@/components/HelloWave';
@@ -8,8 +9,10 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
 export default function HomeScreen() {
+    const router = useRouter();
   return (
-    <ParallaxScrollView
+    <View style={{ flex: 1 }}>
+        <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
       headerImage={
         <Image
@@ -51,9 +54,15 @@ export default function HomeScreen() {
           <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
           <ThemedText type="defaultSemiBold">app-example</ThemedText>.
         </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      </ThemedView>     
 
+    </ParallaxScrollView>
+        <Link href="/create"  >
+        <View style={addButtonStyles.addButton}>
+          <IconSymbol name="plus" size={30} color="#fff" />
+        </View>
+        </Link>
+    </View>
 
 
   );

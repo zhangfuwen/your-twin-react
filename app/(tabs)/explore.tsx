@@ -24,13 +24,6 @@ export default function TabTwoScreen() {
         <ThemedText type="title">Explore</ThemedText>
       </ThemedView>
       <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Link href="/create" asChild>
-        <TouchableOpacity >
-          <View>
-            <IconSymbol name="plus" size={24} color="white" />
-          </View>
-        </TouchableOpacity>
-      </Link>
       <Collapsible title="File-based routing">
         <ThemedText>
           This app has two screens:{' '}
