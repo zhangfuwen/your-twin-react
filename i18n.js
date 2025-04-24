@@ -19,6 +19,9 @@ const resources = {
       "stop_recording": "Stop Recording",
       "start_recording": "Start Recording",
       "loading":"loading...",
+      "Camera": "Camera",
+      "Album": "Album",
+      "Microphone": "Microphone",
     }
   },
   zh: {
@@ -37,6 +40,9 @@ const resources = {
       "stop_recording": "停止录制",
       "start_recording": "开始录制",
       "loading":"加载中...",
+      "Camera": "相机",
+      "Album": "相册",
+      "Microphone": "麦克风",
     }
   }
 };

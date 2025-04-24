@@ -1,5 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
+import { useTranslation } from 'react-i18next';
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -10,10 +11,16 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  Platform,
 } from 'react-native';
 import { Camera } from 'expo-camera';
 import * as FileSystem from 'expo-file-system';
 import { Audio } from 'expo-av';
+import AudioItem from '@/components/timeline/AudioItem';
+import PhotoItem from '@/components/timeline/PhotoItem';
+import TextItem from '@/components/timeline/TextItem';
+import VideoItem from '@/components/timeline/VideoItem';
+import { TimelineItem } from '@/database/db';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 
 interface ContentCreationProps {
@@ -21,12 +28,21 @@ interface ContentCreationProps {
 }
 
 const ContentCreation: React.FC<ContentCreationProps> = () => {
-  const [content, setContent] = useState<string>('');
-  const [media, setMedia] = useState<string | null>(null);
+  const [timelineItem, setTimelineItem] = useState<TimelineItem>({
+    type: 'text',
+    data: '',
+    metaTime: '',
+    comment: '',
+  });
   const [hasCameraPermission, setHasCameraPermission] = useState(false);
   const [hasAudioPermission, setHasAudioPermission] = useState(false);
   const [recording, setRecording] = useState<any>(null);
+
+  const setContent = (content: string) =>
+    setTimelineItem(prev => ({ ...prev, data: content }));
+  const setMedia = (media: string) => setTimelineItem(prev => ({ ...prev, data: media }));
   const navigation = useNavigation();
+  const { t } = useTranslation();
 
   useEffect(() => {
     // Request permissions for camera and audio
@@ -61,7 +77,7 @@ const ContentCreation: React.FC<ContentCreationProps> = () => {
     if (recording) {
       await recording.stopAndUnloadAsync();
       const uri = recording.getURI();
-      setMedia(uri);
+      setMedia(uri || "");
       setRecording(null);
     }
   };
@@ -93,10 +109,10 @@ const ContentCreation: React.FC<ContentCreationProps> = () => {
 
   const handleSave = async () => {
     // Save media locally
-    if (media) {
-      const filename = media.split('/').pop();
+    if (timelineItem.data) {
+      const filename = timelineItem.data.split('/').pop();
       const newPath = FileSystem.documentDirectory + filename;
-
+    
       await FileSystem.copyAsync({
         from: media,
         to: newPath,
@@ -104,35 +120,52 @@ const ContentCreation: React.FC<ContentCreationProps> = () => {
       console.log(`Media moved to ${newPath}`);
     }
 
-    console.log('Content to save:', content, media);
+    console.log('Content to save:', timelineItem);
 
-    setContent('');
-    setMedia(null);
+    setTimelineItem({
+      type: 'text',
+      data: '',
+      metaTime: '',
+      comment: '',
+    });
   };
 
   return (
-    <ScrollView 
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer} >
-      <TouchableOpacity style={styles.button} onPress={handleTakePhoto}>
-        <IconSymbol name={'camera'} size={30} color={'#fff'} />
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={handlePickMedia}>
-        <IconSymbol name={'photo'} size={30} color={'#fff'} />
-      </TouchableOpacity>
-      {hasAudioPermission && (
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => (recording ? stopRecording() : startRecording())}>
-          <IconSymbol name={'mic'} size={30} color={'#fff'} />
-        </TouchableOpacity>
-      )}
-      {media && (
-        <Image source={{ uri: media }} style={{ width: 200, height: 200 }} />
-      )}
-      <TextInput style={styles.input} multiline value={content} onChangeText={setContent} placeholder="Enter content here..." />
-      <Button title="Save" onPress={handleSave} />
-    </ScrollView>
+    <View style={styles.container}>
+      <View style={styles.previewContainer}>
+        {timelineItem.type === 'video' && <VideoItem data={timelineItem.data} />}
+        {timelineItem.type === 'audio' && <AudioItem data={timelineItem.data} />}
+        {timelineItem.type === 'photo' && <PhotoItem data={timelineItem.data} />}
+        {timelineItem.type === 'text' && <TextItem data={timelineItem.data} />}
+      </View>
+
+      <ScrollView contentContainerStyle={styles.contentContainer}>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.button} onPress={handleTakePhoto}>
+            <IconSymbol name={'camera'} size={30} color={'#fff'} />
+          </TouchableOpacity>
+          <Text style={styles.buttonText}>{t('Camera')}</Text>
+        </View>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.button} onPress={handlePickMedia}>
+            <IconSymbol name={'photo'} size={30} color={'#fff'} />
+          </TouchableOpacity>
+          <Text style={styles.buttonText}>{t('Album')}</Text>
+        </View>
+        {hasAudioPermission && (
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => (recording ? stopRecording() : startRecording())}>
+              <IconSymbol name={'mic'} size={30} color={'#fff'} />
+            </TouchableOpacity>
+            <Text style={styles.buttonText}>{t('Microphone')}</Text>
+          </View>
+        )}
+        <TextInput style={styles.input} multiline value={timelineItem.data} onChangeText={setContent} placeholder={t("Enter content here...")} />
+        <Button title="Save" onPress={handleSave} />
+      </ScrollView>
+    </View>
   );
 };
 
@@ -140,11 +173,20 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    flexDirection: 'column', // Arrange children vertically
   },
-    contentContainer: {
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
+  previewContainer: {
+    flex: 1, // Take up half of the available space
+    //backgroundColor: 'gray',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  contentContainer: {
+    //flex: 1, // Take up half of the available space
+    alignItems: 'center',
+    marginHorizontal: 10, // Add margin to the left and right
+    marginVertical: 10
+  },
     label: {
     fontSize: 18,
     marginBottom: 10,
@@ -167,6 +209,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: 50,
   },
+    buttonText: {
+    marginTop: 5,
+  }
 });
 
 export default ContentCreation;
