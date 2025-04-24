@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, ActivityIndicatorProps } from 'react-native';
 import { db, TimelineItem } from '../../database/db';
 import AudioItem from '../../components/timeline/AudioItem';
 import PhotoItem from '../../components/timeline/PhotoItem';
 import SlidesItem from '../../components/timeline/SlidesItem';
 import TextItem from '../../components/timeline/TextItem';
+import { useTranslation } from 'react-i18next';
 import VideoItem from '../../components/timeline/VideoItem';
 
 const TimelineScreen: React.FC = () => {  
@@ -12,6 +13,7 @@ const TimelineScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
 
+  const { t } = useTranslation();
   useEffect(() => {
     const loadTimelineItems = async () => {     setLoading(true);
       try {        db.initialize();        const timelineData = await db.query('', []);        setTimelineItems(timelineData);
@@ -40,10 +42,7 @@ const TimelineScreen: React.FC = () => {
               {item.type === 'photo' && <PhotoItem data={item.data} />}
               {item.type === 'text' && <TextItem data={item.data} />}
               {item.type === 'slides' && <SlidesItem data={item.data} />}
-              <View style={styles.metaContainer}>
-                  {item.metaLocation && <Text style={styles.meta}>- {item.metaLocation}</Text>}
-              </View>
-              {item.comment && <Text style={styles.comment}>{item.comment}</Text>}
+              {item.metaLocation && <Text style={styles.meta}>- {item.metaLocation}</Text>}
             </View>
                 <View style={styles.metaContainer}>
                   {item.metaLocation && <Text style={styles.meta}>- {item.metaLocation}</Text>}
@@ -58,7 +57,7 @@ const TimelineScreen: React.FC = () => {
         <View style={styles.line} />
         <View style={styles.container}>
           {loading ? (
-            <ActivityIndicator size="large" color="#0000ff" />
+            <ActivityIndicator size="large" color="#0000ff" style={styles.activityIndicator} />
           ) : (
               <ScrollView contentContainerStyle={styles.timelineContent}>
                 {timelineItems.map(renderTimelineItem)}
@@ -163,6 +162,10 @@ const styles = StyleSheet.create({
   },
   meta: {
     fontSize: 12,
+    color: '#888',
+  },
+  activityIndicator: {
+    flex: 1,
     color: '#888',
   },
   transcription: {
