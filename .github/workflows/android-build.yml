@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Android Build
 
 on:
   push:
@@ -6,23 +6,22 @@ on:
       - main
 
 jobs:
-  build-android:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 'lts/*'
-          cache: 'npm'
+          node-version: '18'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Set up Java environment
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -31,14 +30,15 @@ jobs:
       - name: Install Expo CLI
         run: npm install -g expo-cli
 
-      - name: Run Expo Prebuild
+      - name: Prebuild
         run: npx expo prebuild --platform android
 
-      - name: Build Android APK
-        run: npx expo run:android --no-bundler
+      - name: Build APK
+        run: npx expo build:android
 
-      - name: Upload APK Artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: android-apk
+          name: app-debug.apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
